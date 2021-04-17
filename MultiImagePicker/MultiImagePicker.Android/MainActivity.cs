@@ -130,7 +130,7 @@ namespace MultiImagePicker.Droid
             }
             catch (Exception ex)
             {
-                Toast.MakeText(Xamarin.Forms.Forms.Context, "Unable to get path", ToastLength.Long).Show();
+                Toast.MakeText(Android.App.Application.Context, "Unable to get path", ToastLength.Long).Show();
             }
             return null;
         }

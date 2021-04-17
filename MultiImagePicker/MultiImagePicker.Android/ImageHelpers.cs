@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using Android.Graphics;
+using Android.Widget;
 using MultiImagePicker.Droid.Helpers;
+using Plugin.CurrentActivity;
 
 [assembly: Xamarin.Forms.Dependency(typeof(ImageHelpers))]
 namespace MultiImagePicker.Droid.Helpers
@@ -13,7 +15,16 @@ namespace MultiImagePicker.Droid.Helpers
 
         public string SaveFile(byte[] imageByte, string fileName)
         {
-            var fileDir = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), collectionName);
+            Java.IO.File fileDir;
+            if ((int)Android.OS.Build.VERSION.SdkInt >= 29)
+            {
+                fileDir = new Java.IO.File(Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryPictures), collectionName);
+            }
+            else
+            {
+                fileDir = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), collectionName);
+            }
+
             if (!fileDir.Exists())
             {
                 fileDir.Mkdirs();

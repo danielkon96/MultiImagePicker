@@ -7,6 +7,7 @@ using MultiImagePicker.Droid;
 using MultiImagePicker.Services;
 using Xamarin.Forms;
 using MultiImagePicker.Droid.Helpers;
+using Plugin.CurrentActivity;
 
 [assembly: Xamarin.Forms.Dependency(typeof(MediaService))]
 namespace MultiImagePicker.Droid
@@ -22,13 +23,13 @@ namespace MultiImagePicker.Droid
                 imageIntent.SetType("image/*");
                 imageIntent.PutExtra(Intent.ExtraAllowMultiple, true);
                 imageIntent.SetAction(Intent.ActionGetContent);
-                ((Activity)Forms.Context).StartActivityForResult(Intent.CreateChooser(imageIntent, "Select photo"), OPENGALLERYCODE);
-                Toast.MakeText(Xamarin.Forms.Forms.Context, "Tap and hold to select multiple photos.", ToastLength.Short).Show();
+                ((Activity)CrossCurrentActivity.Current.Activity).StartActivityForResult(Intent.CreateChooser(imageIntent, "Select photo"), OPENGALLERYCODE);
+                Toast.MakeText(CrossCurrentActivity.Current.Activity, "Tap and hold to select multiple photos.", ToastLength.Short).Show();
             }
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				Toast.MakeText(Xamarin.Forms.Forms.Context, "Error. Can not continue, try again.", ToastLength.Long).Show();
+				Toast.MakeText(CrossCurrentActivity.Current.Activity, "Error. Can not continue, try again.", ToastLength.Long).Show();
             }
         }
 
@@ -38,7 +39,15 @@ namespace MultiImagePicker.Droid
         /// </summary>
 		void IMediaService.ClearFileDirectory()
 		{
-            var directory = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), ImageHelpers.collectionName).Path.ToString();
+            string directory;
+            if ((int)Android.OS.Build.VERSION.SdkInt >= 29)
+            {
+                directory = new Java.IO.File(Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryPictures), ImageHelpers.collectionName).Path.ToString();
+            }
+            else
+            {
+                directory = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), ImageHelpers.collectionName).Path.ToString();
+            }
 
             if (Directory.Exists(directory))
             {
